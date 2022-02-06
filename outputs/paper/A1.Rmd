@@ -1,0 +1,129 @@
+---
+title: "STA304"
+author: "Yuping Hao"
+date: "04/02/2022"
+output:
+  pdf_document: default
+  '': default
+abstract: Open and transparent data can be the key for people to understand a certain
+  field, data leads people to the distant future. The data speaks for itself, and
+  the results from the data can be good or bad, but the data is never deceptive. Reasonable
+  use of data can bring people an unexpected harvest.
+bibliography: ref_list.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(opendatatoronto)
+library(dplyr)
+ 
+# get package
+package <- show_package("9d11c7aa-7613-4d3e-95f3-a02e2b1aa2d7")
+package
+ 
+# get all resources for this package
+resources <- list_package_resources("9d11c7aa-7613-4d3e-95f3-a02e2b1aa2d7")
+ 
+# identify datastore resources; by default, Toronto Open Data sets datastore resource format to CSV for non-geospatial and GeoJSON for geospatial resources
+datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'))
+ 
+# load the first datastore resource as a sample
+data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+data
+```
+
+```{r}
+library(tidyverse)
+data1 = subset(data,select = -c(Index_, ObjectId, geometry)) %>% 
+  filter(2017<=ReportedYear & ReportedYear<=2020) %>%
+  mutate(Totalcount = Count_ - CountCleared) %>%
+  filter(0<Totalcount)
+```
+
+```{r}
+summary(data1)
+```
+
+```{r}
+glimpse(data1)
+```
+
+```{r}
+data1 %>% ggplot(aes(x=Totalcount))+geom_histogram(fill="grey",color="black",
+                                                     bins = 100) +
+  theme_classic() + labs(x="Crime Report", y="Count", 
+                         title="Toal Count of Crime Report ")
+```
+
+```{r}
+data1 %>% ggplot(aes(x=ReportedYear, fill=Category)) +
+  geom_bar()+theme_classic()  + 
+  labs(x="Reported Year", y="Count of Crime", title="Figure 1")
+```
+
+```{r}
+data1 %>% ggplot(aes(x=ReportedYear, y=Totalcount, color=Category)) + geom_point() +
+  theme_classic() + labs(x="Reported Year", y="Totoal Count of Crime", title =
+                           "Figure 2")
+```
+
+```{r}
+summary_table <- data1 %>% 
+  group_by(Category) %>%
+  summarise(Min = min(Totalcount),
+            Q1 = quantile(Totalcount,0.25),
+            Median = median(Totalcount),
+            Q3 = quantile(Totalcount,0.75),
+            Max = max(Totalcount),
+            sd = sd(Totalcount))
+knitr::kable(summary_table)
+```
+
+```{r}
+summary_table <- data1 %>% 
+  group_by(ReportedYear) %>%
+  summarise(Min = min(Totalcount),
+            Q1 = quantile(Totalcount,0.25),
+            Median = median(Totalcount),
+            Q3 = quantile(Totalcount,0.75),
+            Max = max(Totalcount),
+            sd = sd(Totalcount))
+knitr::kable(summary_table)
+```
+```{r}
+citation("tidyverse")
+citation("knitr")
+citation("ggplot2")
+```
+
+\newpage
+
+
+@a
+
+@b
+
+@c
+
+@d
+
+@e
+
+@f
+
+@g
+
+@h
+
+@i
+
+@j
+
+# Reference
+
+
+
+
